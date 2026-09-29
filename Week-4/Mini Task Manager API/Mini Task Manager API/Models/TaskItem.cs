@@ -8,7 +8,7 @@
 
         public string description { get; set; } = string.Empty;
 
-        public string isCompleted {  get; set; }
+        public bool isCompleted {  get; set; }
 
         public DateTime createdAt {  get; set; }
 

@@ -1,4 +1,6 @@
-﻿namespace Mini_Task_Manager_API.Repositories.Interfaces
+﻿using Mini_Task_Manager_API.Models;
+
+namespace Mini_Task_Manager_API.Repositories.Interfaces
 {
     public interface IUserRepository
     {

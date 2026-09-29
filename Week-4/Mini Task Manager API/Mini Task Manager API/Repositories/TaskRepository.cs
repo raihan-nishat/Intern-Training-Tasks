@@ -48,5 +48,19 @@ namespace Mini_Task_Manager_API.Repositories
 
             return true;
         }
+
+        public bool Delete(int id)
+        {
+            var task = GetById(id);
+
+            if(task == null)
+            {
+                return false;
+            }
+
+            tasks.Remove(task);
+
+            return true;
+        }
     }
 }
