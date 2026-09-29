@@ -1,6 +1,7 @@
 ﻿namespace Mini_Task_Manager_API.Models
 {
-    public class LoginDto
+    public class TaskItem
     {
+
     }
 }
