@@ -1,0 +1,6 @@
+@MiniTaskManagerApi_HostAddress = http://localhost:5219
+
+GET {{MiniTaskManagerApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
