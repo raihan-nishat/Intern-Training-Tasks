@@ -19,10 +19,14 @@ builder.Services.AddSwaggerGen();
 
 // dependency injection
 builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<ITokenService,  TokenService>();
 
 // auto mapper
-builder.Services.AddAutoMapper(typeof(MappingProfiles));
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingProfiles>();
+});
 
 // jwt authentication
 var jwtkey = builder.Configuration["Jwt:Key"]!;
@@ -57,6 +61,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -1,8 +1,9 @@
 ﻿using Mini_Task_Manager_API.Models;
+using Mini_Task_Manager_API.Repositories.Interfaces;
 
 namespace Mini_Task_Manager_API.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly List<User> users = new();
 

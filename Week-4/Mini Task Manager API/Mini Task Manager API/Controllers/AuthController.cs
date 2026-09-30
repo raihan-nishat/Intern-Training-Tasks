@@ -27,7 +27,7 @@ namespace Mini_Task_Manager_API.Controllers
         [HttpPost("register")]
         public IActionResult Register(RegisterDto dto)
         {
-            if (userRepository.UserNameExists(dto.UserName))
+            if (userRepository.UsernameExists(dto.Username))
             {
                 return BadRequest(
                     new
@@ -39,7 +39,7 @@ namespace Mini_Task_Manager_API.Controllers
 
             var user = new User
             {
-                username = dto.UserName,
+                username = dto.Username,
                 role = "user"
             };
 
@@ -62,7 +62,7 @@ namespace Mini_Task_Manager_API.Controllers
         [HttpPost("login")]
         public IActionResult Login(LoginDto dto)
         {
-            var user = userRepository.GetUserName(dto.Username);
+            var user = userRepository.GetByUsername(dto.Username);
 
             if(user == null)
             {
