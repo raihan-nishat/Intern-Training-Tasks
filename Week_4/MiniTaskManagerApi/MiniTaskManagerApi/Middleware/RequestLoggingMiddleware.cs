@@ -1,4 +1,5 @@
-﻿namespace MiniTaskManagerApi.Middleware
+﻿
+namespace MiniTaskManagerApi.Middleware
 {
     public class RequestLoggingMiddleware
     {
