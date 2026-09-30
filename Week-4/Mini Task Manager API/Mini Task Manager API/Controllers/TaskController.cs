@@ -5,6 +5,7 @@ using Mini_Task_Manager_API.DTOs.Tasks;
 using Mini_Task_Manager_API.Models;
 using Mini_Task_Manager_API.Repositories.Interfaces;
 using System.Security.Claims;
+using FluentValidation;
 
 namespace MiniTaskManager.Controllers
 {
@@ -15,11 +16,16 @@ namespace MiniTaskManager.Controllers
     {
         private readonly ITaskRepository taskRepository;
         private readonly IMapper mapper;
+        private readonly IValidator<TaskCreateDto> createValidator;
+        private readonly IValidator<TaskUpdateDto> updateValidator;
 
-        public TasksController(ITaskRepository taskRepository, IMapper mapper)
+        public TasksController(ITaskRepository taskRepository, IMapper mapper, 
+            IValidator<TaskCreateDto> createValidator, IValidator<TaskUpdateDto> updateValidator)
         {
             this.taskRepository = taskRepository;
             this.mapper = mapper;
+            this.createValidator = createValidator;
+            this.updateValidator = updateValidator;
         }
 
 
@@ -81,16 +87,18 @@ namespace MiniTaskManager.Controllers
         // post: api/tasks
         
         [HttpPost]
-        public IActionResult CreateTask(
-            TaskCreateDto dto)
+        public async Task<IActionResult> CreateTask(TaskCreateDto dto)
         {
-            var username =
-                User.FindFirstValue(
-                    ClaimTypes.Name
-                );
+            var validationResult = await createValidator.ValidateAsync(dto);
 
-            var task =
-                mapper.Map<TaskItem>(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
+            var username = User.FindFirstValue(ClaimTypes.Name);
+
+            var task = mapper.Map<TaskItem>(dto);
 
             task.ownerUsername = username!;
             task.createdAt = DateTime.UtcNow;
@@ -98,46 +106,33 @@ namespace MiniTaskManager.Controllers
 
             taskRepository.Add(task);
 
-            var result =
-                mapper.Map<TaskResponseDto>(task);
+            var result = mapper.Map<TaskResponseDto>(task);
 
-            return CreatedAtAction(
-                nameof(GetTask),
-                new { id = task.id },
-                result
-            );
+            return CreatedAtAction(nameof(GetTask), new { id = task.id }, result);
         }
 
 
         // put: api/tasks/1
         
         [HttpPut("{id}")]
-        public IActionResult UpdateTask(
-            int id,
-            TaskUpdateDto dto)
+        public async Task<IActionResult> UpdateTask(int id, TaskUpdateDto dto)
         {
-            var username =
-                User.FindFirstValue(
-                    ClaimTypes.Name
-                );
+            var validationResult = await updateValidator.ValidateAsync(dto);
 
-            var existingTask =
-                taskRepository.GetById(id);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
+            var username = User.FindFirstValue(ClaimTypes.Name);
+
+            var existingTask = taskRepository.GetById(id);
 
             if (existingTask == null)
-            {
-                return NotFound(
-                    new
-                    {
-                        message = "task not found"
-                    }
-                );
-            }
+                return NotFound(new { message = "Task not found." });
 
             if (existingTask.ownerUsername != username)
-            {
                 return Forbid();
-            }
 
             existingTask.title = dto.title;
             existingTask.description = dto.description;
@@ -145,10 +140,7 @@ namespace MiniTaskManager.Controllers
 
             taskRepository.Update(existingTask);
 
-            var result =
-                mapper.Map<TaskResponseDto>(
-                    existingTask
-                );
+            var result = mapper.Map<TaskResponseDto>(existingTask);
 
             return Ok(result);
         }
