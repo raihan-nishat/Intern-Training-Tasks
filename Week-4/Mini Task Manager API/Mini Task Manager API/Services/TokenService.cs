@@ -1,7 +1,7 @@
-﻿using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using Mini_Task_Manager_API.Models;
 using Mini_Task_Manager_API.Services.Interfaces;
 
@@ -10,11 +10,11 @@ namespace Mini_Task_Manager_API.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration configuration;
 
         public TokenService(IConfiguration configuration)
         {
-            _configuration = configuration;
+            this.configuration = configuration;
         }
 
         public string CreateToken(User user)
@@ -26,9 +26,15 @@ namespace Mini_Task_Manager_API.Services
                 new Claim(ClaimTypes.Role, user.role)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ConfigurationBinder["Jwt:Key"]!);
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(
+                    configuration["Jwt:Key"]!
+                    )
+                );
 
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(
+                key, 
+                SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -36,8 +42,8 @@ namespace Mini_Task_Manager_API.Services
                 signingCredentials:  credentials
                 );
 
-            return new JwtSecuritytokenHandler()
-                .WriteToken(Token);
+            return new JwtSecurityTokenHandler()
+                .WriteToken(token);
         }
     }
 }
