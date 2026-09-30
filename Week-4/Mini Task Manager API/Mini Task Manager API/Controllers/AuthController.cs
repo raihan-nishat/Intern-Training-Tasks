@@ -20,12 +20,14 @@ namespace Mini_Task_Manager_API.Controllers
         {
             this.userRepository = userRepository;
             this.tokenService = tokenService;
+
+            passwordHasher = new PasswordHasher<User>();
         }
 
         [HttpPost("register")]
-        public IActionResult Register(RegisterDto)
+        public IActionResult Register(RegisterDto dto)
         {
-            if (userRepository.UserNameExists(dto.username))
+            if (userRepository.UserNameExists(dto.UserName))
             {
                 return BadRequest(
                     new
@@ -37,14 +39,14 @@ namespace Mini_Task_Manager_API.Controllers
 
             var user = new User
             {
-                username = dto.username,
+                username = dto.UserName,
                 role = "user"
             };
 
             user.passwordHash =
                 passwordHasher.HashPassword(
                 user,
-                dto.password
+                dto.Password
                 );
 
             userRepository.Add(user);
@@ -58,9 +60,9 @@ namespace Mini_Task_Manager_API.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(LoginDto login)
+        public IActionResult Login(LoginDto dto)
         {
-            var user = userRepository.GetUserName(dto.username);
+            var user = userRepository.GetUserName(dto.Username);
 
             if(user == null)
             {
@@ -75,7 +77,7 @@ namespace Mini_Task_Manager_API.Controllers
             var result = passwordHasher.VerifyHashedPassword(
                 user,
                 user.passwordHash,
-                dto.password
+                dto.Password
             );
 
             if (result == PasswordVerificationResult.Failed)
