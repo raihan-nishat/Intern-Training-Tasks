@@ -1,10 +1,12 @@
 using MiniTaskManagerApi.Repositories;
 using MiniTaskManagerApi.Repositories.Interfaces;
+using MiniTaskManagerApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
+builder.Services.AddSingleton<PasswordService>();
 
 
 // Add services to the container.
