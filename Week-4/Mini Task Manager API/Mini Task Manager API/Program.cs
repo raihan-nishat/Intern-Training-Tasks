@@ -88,37 +88,57 @@ builder.Services.AddValidatorsFromAssemblyContaining<TaskCreateDtoValidator>();
 
 // jwt authentication
 
-var jwtkey = builder.Configuration["Jwt:Key"];
+var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
-if (string.IsNullOrEmpty(jwtkey))
+if (string.IsNullOrWhiteSpace(jwtKey))
 {
-    throw new Exception("JWT Key is missing from appsettings.json");
+    throw new InvalidOperationException(
+        "JWT key is not configured."
+    );
+}
+
+if (string.IsNullOrWhiteSpace(jwtIssuer))
+{
+    throw new InvalidOperationException(
+        "JWT issuer is not configured."
+    );
+}
+
+if (string.IsNullOrWhiteSpace(jwtAudience))
+{
+    throw new InvalidOperationException(
+        "JWT audience is not configured."
+    );
 }
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddAuthentication(
+        JwtBearerDefaults.AuthenticationScheme
+    )
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
 
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtkey)
-            ),
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtKey)
+                    ),
 
-            ValidateIssuer = true,
-            ValidIssuer = jwtIssuer,
+                ValidateIssuer = true,
 
-            ValidateAudience = true,
-            ValidAudience = jwtAudience,
+                ValidIssuer = jwtIssuer,
 
-            ValidateLifetime = true,
+                ValidateAudience = true,
 
-            ClockSkew = TimeSpan.Zero
-        };
+                ValidAudience = jwtAudience,
+
+                ValidateLifetime = true
+            };
     });
 
 

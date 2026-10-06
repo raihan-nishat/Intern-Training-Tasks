@@ -18,12 +18,6 @@ namespace Mini_Task_Manager_API.Services
 
         public string CreateToken(User user)
         {
-            var jwtKey = configuration["Jwt:Key"];
-            var issuer = configuration["Jwt:Issuer"];
-            var audience = configuration["Jwt:Audience"];
-
-            if (string.IsNullOrEmpty(jwtKey))
-                throw new Exception("JWT Key is missing.");
 
             var claims = new[]
             {
@@ -32,7 +26,9 @@ namespace Mini_Task_Manager_API.Services
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey)
+                Encoding.UTF8.GetBytes(
+                    configuration["Jwt:Key"]!
+                    )
             );
 
             var credentials = new SigningCredentials(
@@ -41,8 +37,8 @@ namespace Mini_Task_Manager_API.Services
             );
 
             var token = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: credentials

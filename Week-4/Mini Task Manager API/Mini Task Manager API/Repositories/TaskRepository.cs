@@ -1,43 +1,47 @@
-﻿using Mini_Task_Manager_API.Models;
+﻿using Mini_Task_Manager_API.Data;
+using Mini_Task_Manager_API.Models;
 using Mini_Task_Manager_API.Repositories.Interfaces;
 
 namespace Mini_Task_Manager_API.Repositories
 {
     public class TaskRepository : ITaskRepository
     {
-        private readonly List<TaskItem> tasks = new();
+        private readonly AppDbContext context;
 
-        private int nextId = 1;
+        public TaskRepository(AppDbContext context)
+        {
+            this.context = context;
+        }
 
         public List<TaskItem> GetAll()
         {
-            return tasks;
+            return context.Tasks.ToList();
         }
 
         public List<TaskItem> GetByOwner(string username)
         {
-            return tasks
+            return context.Tasks
                 .Where(t => t.ownerUsername == username)
                 .ToList();
         }
 
         public TaskItem? GetById(int id)
         {
-            return tasks.FirstOrDefault(t => t.id == id);
+            return context.Tasks
+                .FirstOrDefault(t => t.id == id);
         }
 
         public void Add(TaskItem task)
         {
-            task.id= nextId++;
-
-            tasks.Add(task);
+            context.Tasks.Add(task);
+            context.SaveChanges();
         }
 
         public bool Update(TaskItem task)
         {
             var existingTask = GetById(task.id);
 
-            if(existingTask == null)
+            if (existingTask == null)
             {
                 return false;
             }
@@ -46,6 +50,8 @@ namespace Mini_Task_Manager_API.Repositories
             existingTask.description = task.description;
             existingTask.isCompleted = task.isCompleted;
 
+            context.SaveChanges();
+
             return true;
         }
 
@@ -53,12 +59,13 @@ namespace Mini_Task_Manager_API.Repositories
         {
             var task = GetById(id);
 
-            if(task == null)
+            if (task == null)
             {
                 return false;
             }
 
-            tasks.Remove(task);
+            context.Tasks.Remove(task);
+            context.SaveChanges();
 
             return true;
         }
